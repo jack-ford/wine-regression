@@ -6,7 +6,7 @@ All scores below were computed on training-set cross-validation unless explicitl
 
 - Tested design: combine red and white wines with `wine_type`.
 - Reason: use all available data without losing wine-type information.
-- Conclusion: chosen for final project because it is stronger and more interesting than modeling a single subset.
+- Conclusion: chosen to retain wine-type information while using both datasets; superiority over separate models was not tested.
 
 ## Candidate Model Search
 

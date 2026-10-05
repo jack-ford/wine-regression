@@ -1,0 +1,29 @@
+{
+  "passed": true,
+  "absolute_tolerance": 1e-12,
+  "metric_deltas": {
+    "train": {
+      "RMSE": 0.0,
+      "MAE": 0.0,
+      "R2": 0.0,
+      "MedianAE": 0.0,
+      "Within_0.5": 0.0,
+      "Within_1.0": 0.0,
+      "Rounded_Accuracy": 0.0
+    },
+    "test": {
+      "RMSE": 0.0,
+      "MAE": 0.0,
+      "R2": -1.1102230246251565e-16,
+      "MedianAE": 0.0,
+      "Within_0.5": 0.0,
+      "Within_1.0": 0.0,
+      "Rounded_Accuracy": 0.0
+    }
+  },
+  "max_prediction_difference": 2.6645352591003757e-15,
+  "same_best_parameters": true,
+  "same_classification_metrics": true,
+  "same_cv_metrics": true,
+  "serialized_models_load": true
+}

@@ -12,7 +12,7 @@ Data source: UCI Wine Quality Dataset, red and white variants. The project combi
 - Raw duplicate rows: 1177
 - Exact duplicate rows removed before splitting: 1177
 - Missing values: 0
-- Quality distribution: {3: 30, 4: 216, 5: 2138, 6: 2836, 7: 1079, 8: 193, 9: 5}
+- Quality distribution: {'3': 30, '4': 216, '5': 2138, '6': 2836, '7': 1079, '8': 193, '9': 5}
 
 Exact duplicates were removed before the train/test split to reduce the chance that identical records appear in both training and testing. The split is stratified by the integer quality score and uses random seed `42`.
 
@@ -30,14 +30,14 @@ Top validation models:
 
 | model                    |   CV_RMSE_mean |   CV_RMSE_std |   CV_MAE_mean |   CV_R2_mean |   Train_RMSE_mean |   Train_CV_gap_RMSE |   training_time_sec |
 |:-------------------------|---------------:|--------------:|--------------:|-------------:|------------------:|--------------------:|--------------------:|
-| Extra Trees raw          |         0.6836 |        0.0051 |        0.5235 |       0.3959 |            0      |              0.6836 |              2.3702 |
-| Extra Trees engineered   |         0.6849 |        0.0029 |        0.5232 |       0.3936 |            0      |              0.6849 |              3.1297 |
-| Random Forest engineered |         0.686  |        0.0036 |        0.528  |       0.3916 |            0.2535 |              0.4326 |              2.469  |
-| Random Forest raw        |         0.6862 |        0.0034 |        0.5286 |       0.3914 |            0.2545 |              0.4317 |              2.2876 |
-| XGBoost engineered       |         0.6957 |        0.0042 |        0.5406 |       0.3744 |            0.5589 |              0.1368 |              1.7317 |
-| XGBoost raw              |         0.6964 |        0.0031 |        0.54   |       0.3732 |            0.5801 |              0.1163 |              1.2349 |
-| GradientBoosting raw     |         0.6996 |        0.0038 |        0.542  |       0.3674 |            0.5807 |              0.1189 |              6.8435 |
-| LightGBM raw             |         0.7024 |        0.0059 |        0.5401 |       0.3622 |            0.269  |              0.4334 |              3.127  |
+| Extra Trees raw          |         0.6836 |        0.0051 |        0.5235 |       0.3959 |            0      |              0.6836 |              3.3365 |
+| Extra Trees engineered   |         0.6849 |        0.0029 |        0.5232 |       0.3936 |            0      |              0.6849 |              3.1937 |
+| Random Forest engineered |         0.686  |        0.0036 |        0.528  |       0.3916 |            0.2535 |              0.4326 |              2.3762 |
+| Random Forest raw        |         0.6862 |        0.0034 |        0.5286 |       0.3914 |            0.2545 |              0.4317 |              4.0779 |
+| XGBoost engineered       |         0.6957 |        0.0042 |        0.5406 |       0.3744 |            0.5589 |              0.1368 |              1.7104 |
+| XGBoost raw              |         0.6964 |        0.0031 |        0.54   |       0.3732 |            0.5801 |              0.1163 |              1.4361 |
+| GradientBoosting raw     |         0.6996 |        0.0038 |        0.542  |       0.3674 |            0.5807 |              0.1189 |              6.703  |
+| LightGBM raw             |         0.7024 |        0.0059 |        0.5401 |       0.3622 |            0.269  |              0.4334 |              5.9717 |
 
 The selected model was `Tuned final extra_trees (raw features)`. Important tuned hyperparameters:
 
@@ -107,6 +107,18 @@ python -m venv .venv
 ```
 
 Outputs are written to `results/`, figures to `results/figures/`, and the trained pipeline to `models/final_wine_quality_pipeline.joblib`.
+
+## Code Structure
+
+- `src/config.py`: paths, random seed, and split settings.
+- `src/data.py`: download, loading, duplicate removal, splitting, and outlier summaries.
+- `src/features.py`: scikit-learn-compatible feature engineering and clipping.
+- `src/modeling.py`: estimators, cross-validation, tuning, and evaluation.
+- `src/reporting.py`: plots and reports generated from measured results.
+- `src/run_project.py`: orchestration; also supports `python -m src.run_project`.
+
+`requirements.txt` pins the versions used for these results. Raw data, split files,
+experiment tables, figures, and the two trained models are retained for reproducibility.
 
 ## Limitations
 
