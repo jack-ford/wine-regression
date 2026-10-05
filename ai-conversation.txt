@@ -1,0 +1,846 @@
+USER: You are acting as an autonomous senior machine-learning engineer and research assistant. You have access to my computer, terminal, filesystem, Python environment, package manager, and web browser. Your job is to build a rigorous, high-performing machine-learning solution for a class team project.
+
+## PROJECT CONTEXT
+
+We are completing Part 2 of an introductory AI/ML assignment.
+
+The assignment requires us to:
+
+- Choose our own interesting machine-learning problem.
+- Solve it using one final model of our choice.
+- Perform interesting and creative feature engineering.
+- Understand how the final model works well enough to explain it.
+- Report model scores.
+- Preserve our AI interactions/logs so we can discuss how AI was used.
+
+Our selected dataset is:
+
+UCI Wine Quality Dataset  
+https://archive.ics.uci.edu/dataset/186/wine+quality
+
+Our main problem is **regression**: predict the numerical wine `quality` score from the physicochemical measurements.
+
+The goal is to achieve the **strongest legitimate test-set performance possible without serious overfitting or data leakage**, while producing clean, understandable, reproducible code that we can explain in class.
+
+You should execute the project rather than merely describing what I should do.
+
+---
+
+# PRIMARY OBJECTIVES
+
+Complete all of the following:
+
+1. Download and inspect the UCI Wine Quality dataset.
+2. Perform exploratory data analysis.
+3. Investigate outliers carefully.
+4. Test and engineer useful features.
+5. Compare plausible regression algorithms objectively.
+6. Select the model likely to produce the strongest generalization performance.
+7. Tune that model appropriately.
+8. Build a complete preprocessing + modeling pipeline.
+9. Train, validate, and test the final model correctly.
+10. Evaluate it thoroughly.
+11. Produce clean Python scripts/notebooks and an explanation of what was done.
+12. Maximize performance without abusing the test set or introducing leakage.
+
+Do not stop at a baseline model.
+
+---
+
+# IMPORTANT EXPERIMENTAL RULES
+
+Treat this like a real small-scale ML research project.
+
+## Data leakage
+
+Avoid data leakage at all costs.
+
+Any learned preprocessing must be fitted using training data only, including:
+
+- scaling
+- imputation
+- transformations
+- feature selection
+- PCA, if used
+- outlier thresholds if learned from distributions
+- hyperparameter tuning
+
+Use scikit-learn Pipelines and/or ColumnTransformer where appropriate.
+
+Do NOT preprocess the entire dataset before splitting it.
+
+## Dataset splitting
+
+Create:
+
+- training data
+- validation strategy, preferably cross-validation within the training set
+- one untouched final test set
+
+Use a fixed random seed for reproducibility.
+
+Because wine-quality scores may be imbalanced, inspect the target distribution and consider stratification by target score or binned target values when constructing the train/test split if statistically appropriate.
+
+Once the final test set is created, do NOT repeatedly optimize against it.
+
+Use cross-validation for model and hyperparameter decisions.
+
+Only evaluate the test set after the final modeling decisions have been made.
+
+---
+
+# DATASET ANALYSIS
+
+Download the official UCI Wine Quality data.
+
+Determine exactly what files and variants are present.
+
+The dataset commonly contains red and white wines. Investigate whether the best experimental design is:
+
+A. model one wine type only,  
+B. combine both types and add a categorical/binary `wine_type` feature, or  
+C. another justified approach.
+
+Prefer the approach that gives us a strong and interesting machine-learning project while remaining scientifically defensible.
+
+If combining red and white wine data, explicitly create a `wine_type` feature before concatenation so that information is not lost.
+
+Inspect and report:
+
+- dataset dimensions
+- feature names
+- target distribution
+- data types
+- missing values
+- duplicate rows
+- descriptive statistics
+- correlations
+- skewness
+- unusual values
+- distribution differences between red and white wine, if both are used
+- relationships between each feature and quality
+
+Create useful plots where appropriate.
+
+---
+
+# OUTLIER ANALYSIS
+
+Perform thoughtful outlier analysis instead of blindly deleting extreme observations.
+
+Investigate methods such as:
+
+- IQR
+- robust z-scores
+- univariate distributions
+- Isolation Forest
+- Local Outlier Factor, if useful
+- multivariate inspection
+
+For each important feature, determine whether apparent outliers appear to be:
+
+1. obvious data errors,
+2. valid but extreme wines, or
+3. observations that degrade generalization.
+
+Run controlled experiments comparing:
+
+- no outlier removal
+- conservative outlier handling
+- transformations/winsorization where appropriate
+- robust models that naturally tolerate outliers
+
+Do NOT remove data merely because it is statistically unusual.
+
+Use cross-validation to determine whether outlier treatment actually improves model performance.
+
+Document the conclusion.
+
+---
+
+# FEATURE ENGINEERING
+
+This is especially important because our assignment explicitly asks for interesting and creative feature engineering.
+
+First establish a baseline using the original variables.
+
+Then investigate physically or statistically meaningful derived features.
+
+Potential ideas include, but are not limited to:
+
+- free sulfur dioxide / total sulfur dioxide ratio
+- bound sulfur dioxide = total sulfur dioxide - free sulfur dioxide
+- acidity ratios
+- fixed acidity / volatile acidity
+- citric acid / acidity
+- residual sugar / density
+- alcohol / density
+- sulphates / chlorides
+- alcohol × sulphates
+- alcohol × volatile acidity
+- acidity × pH interactions
+- total acidity approximations
+- log transforms of highly skewed variables
+- polynomial terms for selected variables
+- interaction features suggested by exploratory analysis
+
+Do NOT automatically include every imaginable interaction.
+
+Use cross-validation, permutation importance, mutual information, model feature importance, ablation studies, or another defensible technique to determine which engineered features actually help.
+
+Compare:
+
+Baseline features  
+vs.  
+Baseline + engineered features
+
+Quantify whether the feature engineering improves generalization.
+
+Keep the final feature set understandable enough that we can explain it during a presentation.
+
+---
+
+# MODEL SEARCH
+
+The assignment ultimately wants **one model**, but you should compare several candidate models so that our final choice is evidence-based.
+
+Test appropriate regression models such as:
+
+- Linear Regression
+- Ridge
+- Lasso / Elastic Net
+- Random Forest Regressor
+- Extra Trees Regressor
+- HistGradientBoostingRegressor
+- GradientBoostingRegressor
+- XGBoost, if installation is reasonable
+- LightGBM, if installation is reasonable
+- CatBoost, if installation is reasonable
+
+You do not need to use every model if some are clearly inappropriate.
+
+Because this is structured/tabular data, pay particular attention to high-performing tree ensembles and gradient boosting models.
+
+Use identical cross-validation splits when comparing models where possible.
+
+Record at minimum:
+
+- mean CV RMSE
+- standard deviation of CV RMSE
+- mean CV MAE
+- mean CV R²
+- training performance
+- validation performance
+- approximate training time
+
+Use this to identify both strong performance and signs of overfitting.
+
+---
+
+# HYPERPARAMETER OPTIMIZATION
+
+After identifying the strongest model family, tune it intelligently.
+
+Prefer efficient methods such as:
+
+- RandomizedSearchCV
+- Optuna
+- Bayesian optimization
+- coarse-to-fine search
+
+rather than an enormous brute-force grid.
+
+Tune parameters relevant to model complexity and overfitting.
+
+Examples for boosted-tree models might include:
+
+- number of estimators / iterations
+- learning rate
+- tree depth
+- number of leaves
+- min samples per leaf
+- L1/L2 regularization
+- subsampling
+- feature subsampling
+
+Use cross-validation during tuning.
+
+Do not tune hyperparameters against the final test set.
+
+Compare:
+
+1. baseline model
+2. tuned model
+3. tuned model + engineered features
+
+Choose the final configuration using validation/CV results only.
+
+---
+
+# SCALING AND PREPROCESSING
+
+Write reusable Python preprocessing code.
+
+Determine whether scaling is actually necessary for the selected model.
+
+For models requiring scale normalization, evaluate options such as:
+
+- StandardScaler
+- RobustScaler
+
+For tree-based models, recognize that scaling may be unnecessary.
+
+Handle:
+
+- missing values, if present
+- duplicates
+- skewed variables
+- categorical wine type if used
+- engineered features
+- scaling
+- unusual values
+
+Implement preprocessing reproducibly.
+
+Prefer a scikit-learn Pipeline so training and inference use exactly the same transformations.
+
+---
+
+# TRAINING / VALIDATION / TEST CODE
+
+Produce clean Python code that performs the entire workflow.
+
+At minimum create something logically equivalent to:
+
+- data acquisition/loading
+- EDA
+- feature engineering
+- train/test splitting
+- preprocessing
+- model comparison
+- hyperparameter tuning
+- final training
+- final test evaluation
+- feature importance / interpretation
+- plots
+- saved model or pipeline
+
+Organize the project cleanly.
+
+A reasonable project structure might be:
+
+wine_quality_project/
+    data/
+    notebooks/
+    src/
+    results/
+    models/
+    README.md
+    requirements.txt
+
+Possible scripts:
+
+src/
+    download_data.py
+    preprocess.py
+    features.py
+    train.py
+    evaluate.py
+
+You may instead create a well-organized notebook plus supporting Python modules if that is clearer.
+
+The project should run reproducibly from a clean environment.
+
+Create a `requirements.txt`.
+
+Use clear comments, but do not clutter the code with obvious comments.
+
+---
+
+# REGRESSION EVALUATION
+
+This is fundamentally a regression task.
+
+The primary legitimate evaluation metrics must therefore include:
+
+- RMSE
+- MAE
+- R²
+
+You may additionally report:
+
+- MSE
+- median absolute error
+- explained variance
+
+Create useful diagnostic plots such as:
+
+- predicted vs. true quality
+- residual distribution
+- residuals vs. predictions
+- error by actual quality score
+
+Also calculate performance rounded to the nearest integer quality score as a secondary intuitive analysis, but do NOT substitute this for proper regression metrics.
+
+For example, report:
+
+- percentage of predictions within ±0.5 quality points
+- percentage within ±1 quality point
+- exact accuracy after rounding predictions to the nearest quality integer
+
+Label these clearly as secondary/interpretable metrics.
+
+---
+
+# REQUIRED CLASSIFICATION METRICS
+
+I have also been asked to provide:
+
+- accuracy
+- precision
+- recall
+- F1
+- ROC-AUC
+
+These are **classification metrics and must NOT be calculated directly from continuous regression predictions**.
+
+Handle this correctly.
+
+Create a clearly labeled **secondary classification evaluation** derived from the dataset.
+
+For example, define:
+
+`high_quality = 1 if quality >= 7 else 0`
+
+However, do not blindly assume 7 is optimal. Inspect the quality distribution and determine whether `quality >= 7` is a sensible, defensible definition of a high-quality wine.
+
+If another threshold is more appropriate, explain why.
+
+IMPORTANT:
+
+Do not choose the threshold simply because it produces the largest metric values.
+
+The threshold must have a reasonable interpretation.
+
+For this secondary task, calculate:
+
+- accuracy
+- precision
+- recall
+- F1
+- ROC-AUC
+- confusion matrix
+
+If probabilities or continuous scores are required for ROC-AUC, use an appropriate probabilistic classification model OR investigate whether the regression model's continuous predictions can legitimately serve as a ranking score for the derived binary outcome. Explain the method explicitly.
+
+Keep this analysis clearly separated from the main regression results.
+
+Do not pretend these classification scores measure the same thing as regression RMSE/R².
+
+---
+
+# OPTIMIZATION GOAL
+
+The overall goal is to obtain the **best genuine generalization performance possible**.
+
+Aggressively search for improvements, but reject tricks that inflate metrics artificially.
+
+Do NOT:
+
+- leak test data
+- tune using the test set
+- remove difficult samples simply because the model predicts them poorly
+- choose a classification threshold after looking at test labels solely to maximize scores
+- report training-set metrics as final performance
+- claim invalid classification metrics for a continuous target
+- quietly cherry-pick a favorable random split
+- hide poor-performing experiments
+- oversample before splitting the data
+- create target-derived features
+
+DO:
+
+- optimize through cross-validation
+- test whether preprocessing actually helps
+- perform feature ablations
+- compare candidate models fairly
+- investigate model variance
+- control model complexity
+- use regularization
+- examine learning curves if useful
+- quantify train-vs-validation gaps
+- select an appropriate random seed and keep it fixed
+
+If two models perform almost identically, prefer the one that is easier for us to explain unless the more complicated model offers a meaningful performance improvement.
+
+---
+
+# MODEL INTERPRETABILITY
+
+We need to understand our final model well enough to explain it.
+
+Produce an explanation covering:
+
+1. What the model is.
+2. How it learns.
+3. How it generates a prediction.
+4. What its important hyperparameters mean.
+5. Why it works well for this dataset.
+6. How it prevents or controls overfitting.
+7. What its limitations are.
+
+Generate model interpretation using appropriate methods such as:
+
+- native feature importance
+- permutation importance
+- SHAP, if practical
+- partial dependence plots
+
+Identify the features that most strongly influence predicted wine quality.
+
+Compare these findings to the exploratory analysis.
+
+Do not make causal claims. These are predictive associations.
+
+---
+
+# ABLATION STUDY
+
+Perform a small ablation study so that we can demonstrate that our decisions mattered.
+
+At minimum compare:
+
+1. simple baseline
+2. stronger model with raw features
+3. stronger model + preprocessing decisions
+4. stronger model + engineered features
+5. tuned final model
+
+Create a concise table showing how performance changes.
+
+This table will be useful in our presentation.
+
+---
+
+# FINAL DELIVERABLES
+
+When finished, leave the computer with a complete, runnable project.
+
+Produce:
+
+### 1. Final model
+
+One clearly designated final regression model.
+
+### 2. Complete source code
+
+Clean and reproducible Python code for:
+
+- downloading/loading data
+- cleaning
+- feature engineering
+- preprocessing
+- splitting
+- training
+- tuning
+- validation
+- testing
+- evaluation
+
+### 3. Results table
+
+Include:
+
+- model
+- CV RMSE
+- CV MAE
+- CV R²
+- train RMSE
+- test RMSE
+- test MAE
+- test R²
+
+Add classification metrics separately for the derived classification analysis.
+
+### 4. Feature engineering comparison
+
+Show whether engineered features improved performance.
+
+### 5. Outlier experiment
+
+Show whether removing/treating outliers improved or degraded performance.
+
+### 6. Visualizations
+
+Create publication/presentation-quality plots for:
+
+- target distribution
+- important feature relationships
+- predicted vs. actual
+- residuals
+- feature importance
+- model comparison
+
+### 7. README
+
+Write a clear README containing:
+
+- problem statement
+- dataset
+- experimental methodology
+- feature engineering
+- model selection
+- final model
+- results
+- interpretation
+- how to run the project
+- limitations
+
+### 8. Presentation notes
+
+Write a concise file named something like:
+
+`PRESENTATION_NOTES.md`
+
+Explain in simple language:
+
+- what we did
+- why we made each important decision
+- what feature engineering we created
+- what model won
+- how the model works
+- what the scores mean
+- evidence that we are not seriously overfitting
+- what we would try next
+
+Assume a student needs to verbally defend every major choice.
+
+### 9. Experiment log
+
+Create:
+
+`EXPERIMENT_LOG.md`
+
+For every meaningful experiment, record:
+
+- change tested
+- reason for testing it
+- validation score
+- conclusion
+
+This should make the model-development process transparent rather than presenting only the winning experiment.
+
+---
+
+# HOW TO WORK
+
+You are operating agentically.
+
+Do not merely give me instructions.
+
+Actually:
+
+- create folders
+- download data
+- inspect files
+- install reasonable dependencies if necessary
+- write code
+- run code
+- debug failures
+- run experiments
+- analyze results
+- improve the model
+- save outputs
+- generate plots
+- document findings
+
+When something fails, diagnose it and continue.
+
+Make reasonable technical decisions autonomously rather than stopping to ask me about minor implementation choices.
+
+Do not overwrite unrelated files on my computer.
+
+Keep all project work in a dedicated project directory.
+
+Preserve reproducibility.
+
+---
+
+# RESEARCH MINDSET
+
+Treat every modeling decision as a hypothesis to test.
+
+Do not assume that:
+
+- removing outliers helps
+- scaling helps
+- combining wine types helps
+- adding interactions helps
+- a more complicated model is better
+- a particular algorithm will win
+
+Test those questions empirically using validation performance.
+
+Try to extract as much legitimate predictive information as possible from the dataset.
+
+At the same time, remember that this is a class project, so the final system must be understandable and defensible.
+
+A slightly lower score with a clean, explainable experiment may be preferable to a microscopic improvement produced by a fragile or impossible-to-explain pipeline.
+
+---
+
+# FINAL RESPONSE TO ME
+
+After completing all experiments, give me a concise final summary containing:
+
+1. **Best model:** exact model and important hyperparameters.
+2. **Best regression scores:** RMSE, MAE, and R² on the untouched test set.
+3. **Classification scores:** accuracy, precision, recall, F1, and ROC-AUC for the explicitly defined secondary binary-quality task.
+4. **Best feature engineering:** which engineered features helped.
+5. **Outlier conclusion:** what method was tested and whether it helped.
+6. **Overfitting check:** comparison of training, CV, and test performance.
+7. **Model explanation:** how the selected algorithm works.
+8. **Top features:** the most influential predictors.
+9. **Files created:** show me the resulting project structure.
+10. **Presentation-ready conclusion:** 3–5 sentences summarizing our project and result.
+
+Also explicitly identify any methodological limitations or anything we should NOT claim in our presentation.
+
+Your objective is not merely to produce impressive-looking metrics. Your objective is to produce the **highest defensible generalization performance you can achieve while maintaining a clean experimental methodology that we can explain and reproduce.**
+
+Done. I built the full reproducible project in C:\Users\jackb\Catalyst NME\wine-regression.
+Best model: tuned ExtraTreesRegressor using raw features, no scaling:
+n_estimators=874, max_depth=28, max_features=0.7469, min_samples_leaf=1, min_samples_split=5.
+Untouched test regression scores:
+- RMSE: 0.6803
+- MAE: 0.5271
+- R²: 0.4024
+- Within ±1 quality point: 87.7%
+Secondary classification task: high_quality = 1 if quality >= 7, evaluated with a separate balanced LightGBMClassifier.
+- Accuracy: 0.8139
+- Precision: 0.5080
+- Recall: 0.6287
+- F1: 0.5619
+- ROC-AUC: 0.8622
+Feature engineering conclusion: I tested chemistry-inspired engineered features, including sulfur dioxide ratios, acidity ratios, alcohol/density, sulphates/chlorides, interactions, and log transforms. They were useful to investigate, but the best CV model was still raw Extra Trees, so the final model uses raw features plus wine_type.
+Outlier conclusion: no outlier treatment won. 1/99% winsorization and Isolation Forest train-fold filtering both slightly worsened CV RMSE, so the final model keeps valid extreme wines.
+Overfitting check: train RMSE 0.1820, CV RMSE 0.6830, test RMSE 0.6803. Extra Trees clearly memorizes training rows more than a linear model would, but CV and test performance are very close, so the generalization estimate is stable.
+Top predictors: alcohol, volatile acidity, free sulfur dioxide, wine type, sulphates, total sulfur dioxide, residual sugar, density.
+Key files:
+- [README.md](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\README.md)
+- [PRESENTATION_NOTES.md](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\PRESENTATION_NOTES.md)
+- [EXPERIMENT_LOG.md](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\EXPERIMENT_LOG.md)
+- [run_project.py](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\src\\run_project.py)
+- [features.py](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\src\\features.py)
+- [final_wine_quality_pipeline.joblib](C:\\Users\\jackb\\Catalyst NME\\wine-regression\\models\\final_wine_quality_pipeline.joblib)
+- results/ contains CSV tables, metrics JSON, predictions, and all plots.
+Presentation-ready conclusion: We built a leakage-conscious regression project for the UCI Wine Quality data by combining red and white wines with an explicit wine-type feature, removing exact duplicates before splitting, and selecting models only through training-set cross-validation. A tuned Extra Trees model gave the strongest defensible generalization, reaching RMSE 0.6803 and R² 0.4024 on the untouched test set. Feature engineering and outlier handling were tested rather than assumed, and neither improved the final validation score. We should not claim causality, and the classification metrics are only a secondary derived analysis, not the main regression result.
+
+  Edited 4 files+1,194-0View changesUndoView changes
+
+src/features.pysrc/features.py+66-0
+src/run_project.pysrc/run_project.py+1,122-0
+.gitignore.gitignore+5-0
+Show 1 more file
+
+
+
+
+1:54 PM
+
+
+
+
+
+
+
+
+Today 9:44 PM
+Can you conduct research and find other papers that have performed regression on this dataset, then compare our scores to theirs? If there is a significant difference, find out why and report it here 
+
+
+
+
+
+
+
+9:44 PM
+
+
+
+
+
+
+Worked for 2m 21s
+
+
+
+Our scores are lower than some published results, but duplicate handling explains a substantial part of the apparent gap. I tested this directly with our model.
+Our current held-out results are RMSE 0.6803, MAE 0.5271, and R² 0.4024, using combined red and white wines with exact duplicates removed before splitting.
+Paper	Dataset and model	Published regression result	Comparison with ours
+Cortez et al. (2009), Modeling wine preferences…	Separate red/white models; support vector regression	MAE, called MAD: 0.46 red, 0.45 white	Our existing model’s test MAE is 0.4535 red, 0.5518 white. Red is comparable; white is about 23% higher.
+Dahal et al. (2021), Prediction of Wine Quality Using Machine Learning Algorithms	Gradient boosting; dataset identity inconsistent	Test MSE 0.3741, equivalent to RMSE 0.6116	Our combined RMSE is about 11% higher, but the evaluation protocols differ.
+
+
+Cortez used 20 repetitions of five-fold cross-validation, separate models by wine type, and MAE-based model selection. We optimize RMSE and remove duplicates. Those differences prevent a direct ranking of the models. The paper does not report our duplicate-removal procedure. Cortez et al., methodology and Table 2
+The duplicate experiment is the strongest evidence for why scores differ. I cloned our final model with identical hyperparameters and repeated the seed-42, stratified 80/20 split:
+Evaluation condition	RMSE	MAE	R²
+Our deduplicated dataset	0.6803	0.5271	0.4024
+Original dataset, duplicates retained	0.5841	0.4051	0.5531
+Duplicate-retaining split: test rows with unseen feature vectors only	0.6798	—	—
+
+
+With duplicates retained, 357 of 1,300 test rows (27.5%) had feature vectors already present in training. RMSE on those rows was just 0.1477. On unseen rows, it returned to 0.6798, almost exactly our current result.
+Retaining duplicates therefore lowered overall RMSE by 14.1% and MAE by 23.2% without changing the algorithm. This experiment also changes sample size and test composition, so it is not a perfect causal isolation, but the seen-versus-unseen results strongly support overlap as the main explanation within this experiment. It does not establish that every paper’s advantage comes from duplicates.
+Dahal’s comparison has two additional problems:
+- It repeatedly says “red wine,” but reports 4,898 samples and statistics matching white wine. Its dataset identity is therefore ambiguous.
+- It describes choosing the number of boosting trees through early stopping on a “test” dataset. If that is the final reported test set, the estimate benefits from test-set model selection. It reports correlation R = 0.6057, which should not be compared directly with our R². Dahal et al., Sections 2 and 4
+I also found Amrutha K (2023), which evaluates red-wine regression and reports Random Forest plus Bagging as its best approach. Its numerical results are embedded in figures I could not reliably extract, and it removes outliers, changing the evaluated population. I excluded it from the numerical table. Larkin and McManus (2020) studies regression through stacking, but the accessible abstract provides no numerical scores.
+My assessment: our result is credible under a stricter evaluation, and the red-wine MAE is already comparable to the original paper. White-wine performance remains the main gap worth investigating. We cannot call the differences statistically significant without matched splits and paired predictions; the evidence supports a meaningful protocol difference, not a demonstrated failure of our model.
+
+
+9:46 PM
+
+
+
+
+
+
+
+
+finally, go through the project and act as a senior software engineer cleaning your code. Remove any unused or unnecessary functions, variables, files, folders, and artifacts of any kind. Make sure that everything is readable and architected using best code practices. after all changes, go re-run results and verify that the quality of the model did not change
+
+
+
+
+
+
+
+9:52 PM
+
+
+
+
+
+
+Worked for 8m 14s
+
+
+
+Cleaned the project into separate data, modeling, reporting, and orchestration modules. Removed unused code, an unused dependency, redundant CSVs, and caches; pinned dependencies and added three focused tests.
+The full experiment rerun confirms unchanged model quality:
+Metric	Before	After
+Test RMSE	0.680330	0.680330
+Test MAE	0.527120	0.527120
+Test R²	0.402449	0.402449
+CV RMSE	0.683015	0.683015
+
+
+Hyperparameters and classification metrics match. All test predictions agree within floating-point rounding, both saved models load, and all three tests pass.
+Details: [README](C:/Users/jackb/Catalyst NME/wine-regression/README.md) and [verification report](C:/Users/jackb/Catalyst NME/wine-regression/results/cleanup_verification.json).
+
+  Edited 8 files+1,234-1,142View changesUndoView changes
+
+requirements.txtrequirements.txt+10-11
+src/run_project.pysrc/run_project.py+109-1,131
+src/config.pysrc/config.py+17-0
